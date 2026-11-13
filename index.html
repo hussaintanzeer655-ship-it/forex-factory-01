@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Forex Factory - Micro Dashboard</title>
+  <link rel="icon" href="data:," />
+  <style>
+    :root{--bg:#0f1220;--card:#171a2a;--text:#e9e9f0;--accent:#4cd6ff;--muted:#9fb3c8}
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:Arial,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1000px;margin:0 auto;padding:20px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+    h1{font-size:20px;margin:0}
+    .card{background:var(--card);border-radius:12px;padding:14px;margin:12px 0;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+    #ticker{overflow:hidden;height:28px;background:#0b1020;border-radius:8px;padding:6px 10px;white-space:nowrap;position:relative}
+    #ticker span{display:inline-block;margin-right:40px;animation:slide 12s linear infinite}
+    @keyframes slide{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+    .row{display:flex;gap:14px;flex-wrap:wrap}
+    .field{display:flex;flex-direction:column;gap:6px}
+    input,select,button{padding:8px;border-radius:6px;border:1px solid #334; background:#0e1424;color:var(--text)}
+    button{cursor:pointer;background:var(--accent);border:0;color:#00111a;font-weight:bold}
+    @media (max-width: 700px){.row{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Forex Factory - Micro Dashboard</h1>
+      <button id="themeBtn" aria-label="Toggle theme">Theme</button>
+    </header>
+    <div class="card" aria-label="ticker">
+      <div id="ticker" aria-live="polite"></div>
+    </div>
+    <section class="row" aria-label="tools">
+      <div class="card field" style="flex:1 1 260px;min-width:260px">
+        <label>Amount (USD)</label>
+        <input id="amt" type="number" value="1000" step="0.01" />
+      </div>
+      <div class="card field" style="flex:1 1 260px;min-width:260px">
+        <label>Base Currency</label>
+        <select id="base">
+          <option value="EUR">EUR</option>
+          <option value="GBP">GBP</option>
+          <option value="JPY">JPY</option>
+        </select>
+      </div>
+      <div class="card field" style="flex:1 1 260px;min-width:260px">
+        <label>Rate (simulated)</label>
+        <select id="rate">
+          <option value="0.92">1 USD = 0.92 EUR</option>
+          <option value="0.78">1 USD = 0.78 GBP</option>
+          <option value="157.0">1 USD = 157 JPY</option>
+        </select>
+      </div>
+      <div class="card" style="flex:1 1 260px;min-width:260px;display:flex;align-items:end;">
+        <button id="convert">Convert</button>
+      </div>
+    </section>
+    <section class="card" aria-label="output" id="output" style="min-height:40px"></section>
+  </div>
+  <script>
+    (function(){
+      const ticker = document.getElementById('ticker');
+      const pairs = ["USD/EUR","EUR/GBP","GBP/USD","USD/JPY","AUD/USD","USD/CAD"];
+      function gen(){
+        const t = new Date().toLocaleTimeString();
+        const v = (Math.random()*0.5+1.0).toFixed(3);
+        return `${t}  FX ${pairs[Math.floor(Math.random()*pairs.length)]} ${v}`;
+      }
+      let acc='';
+      for(let i=0;i<6;i++){acc+=gen();acc+='   ';}
+      ticker.textContent=acc;
+      setInterval(()=>{ ticker.textContent = gen() + '  ' + ticker.textContent; }, 1800);
+    })();
+    // theme toggle
+    (function(){
+      const btn=document.getElementById('themeBtn');
+      let dark=true; const root=document.documentElement;
+      btn.addEventListener('click',()=>{
+        if(dark){root.style.setProperty('--bg','#f7f7fb');root.style.setProperty('--card','#ffffff');root.style.setProperty('--text','#111');root.style.setProperty('--muted','#555');}
+        else{root.style.removeProperty('--bg');root.style.removeProperty('--card');root.style.removeProperty('--text');root.style.removeProperty('--muted');}
+        dark=!dark;
+      });
+    })();
+    // converter
+    (function(){
+      const amtEl=document.getElementById('amt');
+      const baseEl=document.getElementById('base');
+      const rateEl=document.getElementById('rate');
+      const out=document.getElementById('output');
+      document.getElementById('convert').addEventListener('click',()=>{
+        const a = parseFloat(amtEl.value)||0;
+        const r = parseFloat(rateEl.value)||1;
+        const converted = (a * r).toFixed(2);
+        out.textContent = `Converted: ${a.toFixed(2)} USD ≈ ${converted} ${baseEl.value}`;
+      });
+    })();
+  </script>
+</body>
+</html>
